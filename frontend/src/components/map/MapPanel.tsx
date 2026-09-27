@@ -86,7 +86,6 @@ export function MapPanel({
       ) : null}
 
       <LeafletMap
-        key={mapKey}
         center={center}
         zoom={zoom}
         pins={pins}

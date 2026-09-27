@@ -1,64 +1,32 @@
+"use client";
+
 import { AppShell } from "@/components/layout/AppShell";
+import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { KpiTile } from "@/components/dashboard/KpiTile";
+import { ProjectDistributionCard } from "@/components/dashboard/ProjectDistributionCard";
+import { BlockBreakdownCard } from "@/components/dashboard/BlockBreakdownCard";
+import { FundUtilizationTrendCard } from "@/components/dashboard/FundUtilizationTrendCard";
+import { TopAgenciesCard } from "@/components/dashboard/TopAgenciesCard";
 import { PriorityQueueCard } from "@/components/dashboard/PriorityQueueCard";
 import { AttentionCentreCard } from "@/components/dashboard/AttentionCentreCard";
-import { TopAgenciesCard } from "@/components/dashboard/TopAgenciesCard";
-import { BlockBreakdownCard } from "@/components/dashboard/BlockBreakdownCard";
-import { AiInsightCard, GovernanceQuote } from "@/components/dashboard/AiInsightCard";
-import { StatusDonutChart } from "@/components/charts/StatusDonutChart";
-import { FundUtilizationChart } from "@/components/charts/FundUtilizationChart";
+import { BetterMonitoringBadge } from "@/components/dashboard/BetterMonitoringBadge";
+import { AiInsightCard } from "@/components/dashboard/AiInsightCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import {
-  Layers,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  IndianRupee,
-  Calendar,
-  ChevronDown,
-  ArrowRight
-} from "lucide-react";
-import {
   currentUser,
-  dashboardKpis,
-  dashboardMeta,
-  fundUtilizationTrend,
-  statusDistribution
+  dashboardKpis
 } from "@/lib/mockData";
 
 export default function DashboardPage() {
-  const firstName = currentUser.name;
-
   return (
     <AppShell>
-      {/* Greeting row */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
-        <div>
-          <h1 className="text-[21px] font-bold text-slate-900 leading-tight">
-            Welcome, {firstName}
-          </h1>
-          <p className="text-[12.5px] text-slate-500 mt-0.5">
-            Here&apos;s the overview of MPLADS projects in your constituency
-          </p>
-        </div>
+      {/* 1. Welcome & 3D Island Hero Banner */}
+      <WelcomeBanner userName={currentUser.name} role={currentUser.role} />
 
-        <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
-          <button className="hidden sm:inline-flex items-center gap-1.5 text-[11.5px] text-slate-500 hover:text-slate-700">
-            Last updated: {dashboardMeta.lastUpdated}
-            <ArrowRight size={12} />
-          </button>
-          <button className="inline-flex items-center gap-2 text-[12px] font-medium border border-slate-200 bg-white rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-50 w-full md:w-auto justify-center">
-            <Calendar size={14} className="text-slate-400 shrink-0" />
-            <span className="truncate">{dashboardMeta.dateRange}</span>
-            <ChevronDown size={14} className="text-slate-400 shrink-0" />
-          </button>
-        </div>
-      </div>
-
-      {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mb-4">
+      {/* 2. 5 3D KPI Tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 mb-5">
         <KpiTile
-          icon={Layers}
+          stat3d="folder"
           tint="blue"
           label="Total Projects"
           value={String(dashboardKpis.totalProjects.value)}
@@ -66,7 +34,7 @@ export default function DashboardPage() {
           tone="positive"
         />
         <KpiTile
-          icon={CheckCircle2}
+          stat3d="completed"
           tint="green"
           label="Completed"
           value={String(dashboardKpis.completed.value)}
@@ -74,102 +42,58 @@ export default function DashboardPage() {
           tone="positive"
         />
         <KpiTile
-          icon={Clock}
+          stat3d="delayed"
           tint="red"
           label="Delayed"
           value={String(dashboardKpis.delayed.value)}
           deltaPct={dashboardKpis.delayed.deltaPct}
-          tone="negative"
+          tone="positive"
         />
         <KpiTile
-          icon={AlertTriangle}
+          stat3d="attention"
           tint="amber"
           label="Needs Attention"
           value={String(dashboardKpis.needsAttention.value)}
           deltaPct={dashboardKpis.needsAttention.deltaPct}
-          tone="warning"
+          tone="positive"
         />
         <KpiTile
-          icon={IndianRupee}
-          tint="plain"
+          stat3d="allocated"
+          tint="purple"
           label="Total Allocated"
-          value={`₹ ${dashboardKpis.totalAllocatedCr} Cr`}
+          value={`₹ ${dashboardKpis.totalAllocatedCr} C`}
         >
-          <div className="mt-1">
-            <p className="text-[10.5px] text-emerald-600 font-medium mb-1">
-              Utilized: {dashboardKpis.utilizedPct}%
-            </p>
-            <ProgressBar value={dashboardKpis.utilizedPct} color="bg-emerald-500" height={5} />
+          <div className="mt-1.5">
+            <div className="flex items-center justify-between text-[10.5px] mb-1 font-bold">
+              <span className="text-emerald-700">Utilized: {dashboardKpis.utilizedPct}%</span>
+            </div>
+            <ProgressBar value={dashboardKpis.utilizedPct} color="bg-gradient-to-r from-emerald-500 to-teal-500" height={6} />
           </div>
         </KpiTile>
       </div>
 
-      {/* Main grid: two content columns + a right rail */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr_320px] gap-4 items-start">
-        {/* Project Distribution (Status) */}
-        <section className="card p-4">
-          <h2 className="text-sm font-bold text-slate-800 mb-2">Project Distribution (Status)</h2>
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <StatusDonutChart data={statusDistribution} total={dashboardKpis.totalProjects.value} />
-            <ul className="space-y-2.5 min-w-0 w-full flex-1">
-              {statusDistribution.map((status) => (
-                <li key={status.label} className="flex items-center gap-2 text-[11.5px]">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: status.color }}
-                  />
-                  <span className="text-slate-600 flex-1 truncate">{status.label}</span>
-                  <span className="font-semibold text-slate-800 shrink-0">
-                    {status.value}{" "}
-                    <span className="text-slate-400 font-normal">({status.pct}%)</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+      {/* 3. Main Analytics & Priority Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr_330px] gap-4 items-start mb-5">
+        {/* Row 1 Left: Project Distribution (Status) */}
+        <ProjectDistributionCard />
 
-        {/* Map replaced by a block-wise breakdown (dashboard only) */}
+        {/* Row 1 Center: Projects by Block */}
         <BlockBreakdownCard />
 
-        {/* Right rail spans both content rows */}
-        <div className="space-y-4 xl:row-span-3">
+        {/* Right Rail (Spans both rows): AI Priority Queue + Attention Centre + Better Monitoring Badge */}
+        <div className="space-y-4 xl:row-span-2">
           <PriorityQueueCard />
           <AttentionCentreCard />
-          <GovernanceQuote />
+          <BetterMonitoringBadge />
         </div>
 
-        {/* Fund Utilization Trend */}
-        <section className="card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-y-1 mb-1">
-            <h2 className="text-sm font-bold text-slate-800">Fund Utilization Trend</h2>
-            <div className="flex items-center gap-3 text-[10px]">
-              <span className="flex items-center gap-1.5 text-slate-500">
-                <span className="w-2.5 h-[3px] rounded-full bg-blue-500" /> Allocated
-              </span>
-              <span className="flex items-center gap-1.5 text-slate-500">
-                <span className="w-2.5 h-[3px] rounded-full bg-emerald-500" /> Utilized
-              </span>
-            </div>
-          </div>
+        {/* Row 2 Left: Fund Utilization Trend */}
+        <FundUtilizationTrendCard />
 
-          <div className="relative">
-            <FundUtilizationChart data={fundUtilizationTrend} />
-            <div className="absolute top-1 right-1 space-y-1">
-              <span className="block text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5">
-                ₹ {dashboardKpis.totalAllocatedCr} Cr
-              </span>
-              <span className="block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5">
-                ₹ 267.8 Cr
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* Top Agencies */}
+        {/* Row 2 Center: Top Agencies by Performance */}
         <TopAgenciesCard />
 
-        {/* AI Insight spans the two content columns */}
+        {/* Full width AI Insight Banner */}
         <div className="xl:col-span-2">
           <AiInsightCard />
         </div>
